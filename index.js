@@ -24,11 +24,34 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
 
-
     const userCollection = client.db("visionDB").collection("user");
+    const productCollection = client.db("visionDB").collection("products");
 
 
+    app.post("/users", async (req, res) => {
+        const user = req.body;
+        const query = { email: user.email };
+        const existingUser = await userCollection.findOne(query);
+        if (existingUser) {
+          return res.send({ message: "user already exist", insertedId: null });
+        }
+        const result = await userCollection.insertOne(user);
+        res.send(result);
+      });
 
+
+      app.get("/products", async (req, res) => {
+        const result = await productCollection.find().toArray();
+        res.send(result);
+      });
+
+      app.get("/products/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await productCollection.findOne(query);
+        res.send(result);
+      });
+  
 
 
 
